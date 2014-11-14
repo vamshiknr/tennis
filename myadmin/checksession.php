@@ -8,5 +8,5 @@
 ob_start();
 //session_start();
 if (!isset($_SESSION['is_session_active']) || $_SESSION['is_session_active'] != 1) {
-    header('Location: index.php');
+    header('Location: signout.php');
 }

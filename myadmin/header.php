@@ -11,15 +11,19 @@ require_once '../constants.php';
         <meta name="author" content="">
 
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="<?php echo $base_url; ?>/lib/bootstrap/css/bootstrap-datetimepicker.css">
         <link rel="stylesheet" type="text/css" href="<?php echo $base_url; ?>/lib/bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="<?php echo $base_url; ?>/lib/bootstrap/css/bootstrapValidator.css">
         <link rel="stylesheet" href="<?php echo $base_url; ?>/lib/font-awesome/css/font-awesome.css">
+
 
         <script src="<?php echo $base_url; ?>/lib/jquery-1.11.1.min.js" type="text/javascript"></script>
 
         <script src="<?php echo $base_url; ?>/lib/jQuery-Knob/js/jquery.knob.js" type="text/javascript"></script>
         <script type="text/javascript">
-            $(function() {
+            $(function () {
                 $(".knob").knob();
+                //var presentDate = "<?php echo date('Y-m-d'); ?>";
             });
         </script>
 
@@ -27,18 +31,25 @@ require_once '../constants.php';
         <link rel="stylesheet" type="text/css" href="<?php echo $base_url; ?>/stylesheets/theme.css">
         <link rel="stylesheet" type="text/css" href="<?php echo $base_url; ?>/stylesheets/premium.css">
 
+
+        <script src="<?php echo $base_url; ?>/lib/bootstrap/js/bootstrap.js"></script>
+        <script src="<?php echo $base_url; ?>/lib/bootstrap/js/moment.js"></script>
+        <script src="<?php echo $base_url; ?>/lib/bootstrap/js/bootstrap-datetimepicker.js"></script>
+        <script src="<?php echo $base_url; ?>/lib/bootstrap/js/bootstrapValidator.min.js"></script>
+
+
     </head>
     <body class=" theme-blue">
 
         <!-- Demo page code -->
 
         <script type="text/javascript">
-            $(function() {
+            $(function () {
                 var match = document.cookie.match(new RegExp('color=([^;]+)'));
                 if (match)
                     var color = match[1];
                 if (color) {
-                    $('body').removeClass(function(index, css) {
+                    $('body').removeClass(function (index, css) {
                         return (css.match(/\btheme-\S+/g) || []).join(' ')
                     })
                     $('body').addClass('theme-' + color);
@@ -61,7 +72,7 @@ require_once '../constants.php';
         </style>
 
         <script type="text/javascript">
-            $(function() {
+            $(function () {
                 var uls = $('.sidebar-nav > ul > *').clone();
                 uls.addClass('visible-xs');
                 $('#main-menu').append(uls.clone());
@@ -117,9 +128,9 @@ require_once '../constants.php';
                                 <li><a href="./">My Account</a></li>
                                 <li class="divider"></li>
                                 <li class="dropdown-header">Admin Panel</li>
-                                <li><a href="./">Users</a></li>
+                                <!--<li><a href="./">Users</a></li>
                                 <li><a href="./">Security</a></li>
-                                <li><a tabindex="-1" href="./">Payments</a></li>
+                                <li><a tabindex="-1" href="./">Payments</a></li> -->
                                 <li class="divider"></li>
                                 <li><a tabindex="-1" href="<?php echo $admin_url; ?>/signout.php">Logout</a></li>
                             </ul>

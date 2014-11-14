@@ -16,7 +16,7 @@ if ($username != '' && $password != '') {
     if (count($records) > 0) {
         $_SESSION['is_session_active'] = 1;
         $_SESSION['username'] = $username;
-        $_SESSION['userId'] = $records->adminid;
+        $_SESSION['userId'] = $records->ADMINID;
         header("Location:dashboard.php");
     } else {
         echo "Invalid Username and Passowrd";

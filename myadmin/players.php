@@ -1,17 +1,18 @@
 <?php
-require_once 'manageAcadamies.php';
+require_once 'managePlayers.php';
 require_once 'header.php';
-$academies = new acadamies();
+
+$players = new players();
 //$totalAcademies = $academies->getAcadamies();
-$perPage = $academies->perPage;
+$perPage = $players->perPage;
 $page = 1;
 if (isset($_GET['page'])) {
     $page = trim($_GET['page']);
 }
-$academies->first = ($page - 1) * $perPage;
+$players->first = ($page - 1) * $perPage;
 
-$categories = $academies->getAcadamies();
-$total = $academies->getToalRecords();
+$categories = $players->getPlayers();
+$total = $players->getToalRecords();
 
 if ($total > (($page * $perPage) + 1)) {
     $next = $page + 1;
@@ -27,10 +28,10 @@ if ($total > (($page * $perPage) + 1)) {
 ?>
 <div class="header">
 
-    <h1 class="page-title">Academies</h1>
+    <h1 class="page-title">Players</h1>
     <ul class="breadcrumb">
         <li><a href="dashboard.php">Dashboard</a> </li>
-        <li class="active">Academies</li>
+        <li class="active">Players</li>
     </ul>
 
 </div>
@@ -40,21 +41,26 @@ if ($total > (($page * $perPage) + 1)) {
         echo '<h4 class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>' . $_SESSION['success'] . '</h4>';
         unset($_SESSION['success']);
     }
+    if (isset($_SESSION['error']) && !empty($_SESSION['error'])) {
+        echo '<h4 class="alert alert-error"><a href="#" class="close" data-dismiss="alert">&times;</a>' . $_SESSION['error'] . '</h4>';
+        unset($_SESSION['error']);
+    }
     ?>
     <div class="btn-toolbar list-toolbar">
-        <button class="btn btn-primary" onclick="location.href = 'addAcademy.php';"><i class="fa fa-plus"></i> New Academy</button>
-        <a href="#importAcademies" role="button" class="btn" data-toggle="modal"><button class="btn btn-default">Import</button></a>
+        <button class="btn btn-primary" onclick="location.href = 'addPlayer.php';"><i class="fa fa-plus"></i> New Player</button>
+        <a href="#importPlayers" role="button" class="btn" data-toggle="modal"><button class="btn btn-default">Import</button></a>
         <div class="btn-group">
         </div>
     </div>
     <table class="table">
         <thead>
             <tr>
-                <th>Academy Name</th>
-                <th>Location</th>
+                <th>Player Name</th>
+                <th>AITA Number</th>
+                <th>Email</th>
                 <th>Mobile</th>
-                <th>No Of Clay Courts</th>
-                <th>No Of Hard Courts</th>
+                <th>State</th>
+                <th>Academy Name</th>
                 <th style="width: 3.5em;"></th>
             </tr>
         </thead>
@@ -63,13 +69,14 @@ if ($total > (($page * $perPage) + 1)) {
             $starting = 0;
             while ($category = mysql_fetch_object($categories)) {
                 echo '<tr>';
-                echo '<td>' . $category->NAME . '</td><td>' . $category->COLONY . ', ' . $category->ADDRESS . ', ' . $category->LANDMARK . ', ' . $category->CITY . ', ' . $category->STATE . '</td>
+                echo '<td>' . $category->NAME . '</td><td>' . $category->AITA . '</td>
+              <td>' . $category->EMAIL . '</td>
               <td>' . $category->MOBILE . '</td>
-              <td>' . $category->CLAY_COURTS . '</td>
-              <td>' . $category->HARD_COURTS . '</td>
+              <td>' . $category->STATE . '</td>
+              <td>' . $category->academyName . '</td>
               <td>
-              <a href="editacademy.php?id=' . $category->ACADEMY_ID . '"><i class="fa fa-pencil"></i></a>
-              <a href="#myModal" role="button" data-toggle="modal" catval="' . $category->ACADEMY_ID . '"  class="deleteCat"><i class="fa fa-trash-o"></i></a>
+              <a href="editPlayer.php?aid=' . $category->ACADEMY_ID . '&pid=' . $category->AITA . '"><i class="fa fa-pencil"></i></a>
+              <a href="#myModal" role="button" data-toggle="modal" catval="' . $category->AITA . '"  class="deleteCat"><i class="fa fa-trash-o"></i></a>
               </td>
               </tr>';
                 $starting++;
@@ -79,13 +86,13 @@ if ($total > (($page * $perPage) + 1)) {
     </table>
 
     <ul class="pagination">
-        <li><a href="acadamies.php?page=<?php echo $previous; ?>">&laquo;</a></li>
+        <li><a href="players.php?page=<?php echo $previous; ?>">&laquo;</a></li>
         <?php
         for ($t = 1; $t <= ceil($total / $perPage); $t++) {
-            echo '<li><a href="acadamies.php?page=' . $t . '">' . $t . '</a></li>';
+            echo '<li><a href="players.php?page=' . $t . '">' . $t . '</a></li>';
         }
         ?>
-        <li><a href="acadamies.php?page=<?php echo $next; ?>">&raquo;</a></li>
+        <li><a href="players.php?page=<?php echo $next; ?>">&raquo;</a></li>
     </ul>
 
     <div class="modal small fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -96,11 +103,11 @@ if ($total > (($page * $perPage) + 1)) {
                     <h3 id="myModalLabel">Delete Confirmation</h3>
                 </div>
                 <div class="modal-body">
-                    <p class="error-text"><i class="fa fa-warning modal-icon"></i>Are you sure you want to delete the Category?<br>This cannot be undone.</p>
+                    <p class="error-text"><i class="fa fa-warning modal-icon"></i>Are you sure you want to delete the Player?<br>This cannot be undone.</p>
                 </div>
                 <div class="modal-footer">
-                    <form action="<?php echo $admin_url . '/academy.php'; ?>" method="POST" enctype="multipart/form-data" name="deleteForm" id="deleteForm">
-                        <input type="hidden" name="deleteAcademy" value="" id="deleteAcademy"/>
+                    <form action="<?php echo $admin_url . '/player.php'; ?>" method="POST" enctype="multipart/form-data" name="deleteForm" id="deleteForm">
+                        <input type="hidden" name="deletePlayer" value="" id="deletePlayer"/>
                         <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
                         <button class="btn btn-danger" data-dismiss="modal" name="delete" id="deleteSubmit" type="submit">Delete</button>
                     </form>
@@ -108,21 +115,21 @@ if ($total > (($page * $perPage) + 1)) {
             </div>
         </div>
     </div>
-    <div class="modal small fade" id="importAcademies" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal small fade" id="importPlayers" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h2>Import Academies</h2>
+                    <h2>Import Players</h2>
                 </div>
                 <div class="modal-body">
                     <p class="error-text">Select a file to import.</p>
                 </div>
                 <div class="modal-footer">
-                    <form action="<?php echo $admin_url . '/academy.php'; ?>" method="POST" enctype="multipart/form-data" name="uploadForm" id="importAcademiesForm">
-                        <input type="file" name="importAcademies" id="importAcademiesFile"/>
-                        <input type="hidden" name="testAcademies" value="Test"/>
-                        <button class="btn btn-danger" data-dismiss="modal" name="academiesImport" id="academiesImport" type="submit">Import Academies</button>
+                    <form action="<?php echo $admin_url . '/player.php'; ?>" method="POST" enctype="multipart/form-data" name="uploadForm" id="importPlayersForm">
+                        <input type="file" name="importPlayers" id="importPlayersFile"/>
+                        <input type="hidden" name="testPlayers" value="Test"/>
+                        <button class="btn btn-danger" data-dismiss="modal" name="playersImport" id="playersImport" type="submit">Import Players</button>
                     </form>
                 </div>
             </div>
@@ -132,13 +139,13 @@ if ($total > (($page * $perPage) + 1)) {
 <script type="text/javascript">
     $(document).ready(function () {
         $('.fa-trash-o').click(function () {
-            $('#deleteAcademy').val($(this).parent().attr('catval'));
+            $('#deletePlayer').val($(this).parent().attr('catval'));
         });
         $('#deleteSubmit').click(function () {
             $('#deleteForm').submit();
         });
-        $('#academiesImport').click(function () {
-            $('#importAcademiesForm').submit();
+        $('#playersImport').click(function () {
+            $('#importPlayersForm').submit();
         });
     });
 </script>

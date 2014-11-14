@@ -45,7 +45,7 @@ class acadamies
             $temp = " and ACADEMY_ID = " . trim((int) $academyid);
         }
         $str = "select * from academy "
-                . "where 1=1 " . $temp;
+                . "where status=1 " . $temp;
         if (is_null($limit)) {
             $str .= ' limit ' . $this->first . ', ' . $this->perPage;
         }
@@ -55,15 +55,16 @@ class acadamies
     public function checkUniqueness($name, $academyid = NULL, $city = NULL)
     {
         try {
-            $cond = '';
+            $cond = ' and s.statusname = "Active"';
             if (!is_null($academyid)) {
-                $cond = ' and ACADEMY_ID!=' . $academyid;
+                $cond .= ' and a.ACADEMY_ID!=' . $academyid;
             }
             if (!is_null($city)) {
-                $cond = ' and CITY ="' . $city . '"';
+                $cond .= ' and a.CITY ="' . $city . '"';
             }
-            $str = "select count(NAME) as tcount from academy "
-                    . "where NAME='" . $name . "'" . $cond;
+            $str = "select count(a.NAME) as tcount from academy a"
+                    . " join academystatus s on s.statusid = a.status "
+                    . "where a.NAME='" . $name . "'" . $cond;
             $fObject = $this->db->fetchObject($str);
             return $fObject->tcount;
         } catch (Exception $ex) {
@@ -71,6 +72,30 @@ class acadamies
             exit;
         }
     }
+
+    /*
+     * Function to Insert Academy
+     *
+     * Access is public
+     *
+     * @Param String $academyName
+     * @Param String $state
+     * @Param String $city
+     * @Param String $colony
+     * @Param String $address
+     * @Param String $landmark
+     * @Param String $contactName
+     * @Param String $mobile
+     * @Param Int $clay_courts
+     * @Param Int $hard_courts
+     * @Param String $url
+     * @Param String $facebook
+     * @Param String $twitter
+     * @Param String $photoLoc
+     *
+     * @return Boolean
+     *
+     */
 
     public function insertAcademy($academyName, $state, $city, $colony, $address, $landmark, $contactName, $mobile, $clay_courts, $hard_courts, $url, $facebook, $twitter, $photoLoc)
     {
@@ -83,24 +108,69 @@ class acadamies
         return $this->db->Execute($str);
     }
 
-    public function deleteAcademy($categoryId)
+    /*
+     * Function to delete Academy
+     *
+     * From status master table, 3-Deleted
+     * @Param   Int $academyId
+     * @return  Boolean
+     */
+
+    public function deleteAcademy($academyId)
     {
-        $str = $this->_execAcadamies($categoryId);
-        $str = 'delete from certification_categories where category_id = ' . $categoryId;
+        $str = $this->_execAcadamies($academyId);
+        $str = 'update academy set status = 3 where ACADEMY_ID = ' . $academyId;
         $this->db->flatExecute($str);
         return true;
     }
 
-    public function updateAcademy($categoryId, $categoryName, $statusId, $parentId)
+    /*
+     * Function to Update Academy
+     *
+     * Access is public
+     *
+     * @Param String $academyName
+     * @Param String $state
+     * @Param String $city
+     * @Param String $colony
+     * @Param String $address
+     * @Param String $landmark
+     * @Param String $contactName
+     * @Param String $mobile
+     * @Param Int $clay_courts
+     * @Param Int $hard_courts
+     * @Param String $url
+     * @Param String $facebook
+     * @Param String $twitter
+     * @Param String $photoLoc
+     * @Param Int $status
+     *
+     * @return Boolean
+     *
+     */
+
+    public function updateAcademy($academyName, $state, $city, $colony, $address, $landmark, $contactName, $mobile, $clay_courts, $hard_courts, $url, $facebook, $twitter, $photoLoc, $academyStatus, $academyId)
     {
-        if ($this->checkUniqueness($categoryName, $categoryId, $parentId) > 0) {
+        if ($this->checkUniqueness($academyName, $academyId, $city) > 0) {
             return false;
         } else {
-            $str = 'update certification_categories set category_name = "' . $categoryName . '",'
-                    . ' category_parent_id = ' . $parentId . ','
-                    . ' updatedby=' . $_SESSION['userId'] . ','
-                    . ' category_status_id=' . $statusId
-                    . ' where category_id=' . $categoryId;
+            $str = 'update academy set NAME = "' . $academyName . '",'
+                    . ' STATE = "' . $state . '",'
+                    . ' CITY = "' . $city . '",'
+                    . ' COLONY = "' . $colony . '",'
+                    . ' ADDRESS = "' . $address . '",'
+                    . ' LANDMARK = "' . $landmark . '",'
+                    . ' CONTACT_NAME = "' . $contactName . '",'
+                    . ' MOBILE = "' . $mobile . '",'
+                    . ' CLAY_COURTS = "' . $clay_courts . '",'
+                    . ' HARD_COURTS = "' . $hard_courts . '",'
+                    . ' URL = "' . $url . '",'
+                    . ' FACEBOOK = "' . $facebook . '",'
+                    . ' TWITTER = "' . $twitter . '",'
+                    . ' PHOTO = "' . $photoLoc . '",'
+                    . ' UPDATED_BY=' . $_SESSION['userId'] . ','
+                    . ' status=' . $academyStatus
+                    . ' where ACADEMY_ID=' . $academyId;
             $this->db->Execute($str);
             return true;
         }
@@ -108,7 +178,7 @@ class acadamies
 
     public function fetchStatuses()
     {
-        $str = "select * from certfication_status";
+        $str = "select * from academystatus";
         return $this->db->Returns($str);
     }
 
@@ -159,6 +229,30 @@ class acadamies
                 $op = '<option value="0">--No City Present--</option>';
             }
             echo $op;
+        } catch (Exception $ex) {
+            echo $ex->getMessage();
+            exit;
+        }
+    }
+
+    /*
+     * Function to check Image extension
+     *
+     * Access is Public
+     * @param String $imageName
+     * @return Boolean
+     */
+
+    public function isValidImageExt($imageName)
+    {
+        try {
+            $ext = array('jpg', 'jpeg', 'png');
+            $imageArray = explode('.', $imageName);
+            $length = count($imageArray);
+            if (in_array($imageArray[$length - 1], $ext)) {
+                return true;
+            }
+            return false;
         } catch (Exception $ex) {
             echo $ex->getMessage();
             exit;
